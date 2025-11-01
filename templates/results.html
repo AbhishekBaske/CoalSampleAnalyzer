@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Coal Spontaneous Combustion Analyzer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-6 text-primary">
+                <i class="fas fa-chart-line me-3"></i>
+                Coal Analysis Results
+            </h1>
+            <p class="lead text-muted">Spontaneous Combustion Risk Assessment Report</p>
+        </div>
+
+        <!-- Coal Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Sample Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>Coal Type:</strong> {{ results.coal_info.type }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Location:</strong> {{ results.coal_info.location }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Analysis Date:</strong> {{ results.coal_info.analysis_date }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Assessment Alert -->
+        <div class="alert alert-{{ results.risk_assessment.color }} alert-dismissible fade show" role="alert">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="alert-heading mb-2">
+                        {% if results.risk_assessment.overall_risk == 'CRITICAL' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>CRITICAL RISK
+                        {% elif results.risk_assessment.overall_risk == 'HIGH' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>HIGH RISK
+                        {% elif results.risk_assessment.overall_risk == 'MODERATE' %}
+                            <i class="fas fa-info-circle me-2"></i>MODERATE RISK
+                        {% else %}
+                            <i class="fas fa-check-circle me-2"></i>LOW RISK
+                        {% endif %}
+                        - Spontaneous Combustion Risk
+                    </h4>
+                    <p class="mb-0">
+                        Risk Score: <strong>{{ results.risk_assessment.risk_score }}/100</strong>
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-{{ results.risk_assessment.color }}" 
+                             role="progressbar" 
+                             style="width: {{ results.risk_assessment.risk_score }}%"
+                             aria-valuenow="{{ results.risk_assessment.risk_score }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ results.risk_assessment.risk_score }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Calculated Indices -->
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calculator me-2"></i>Calculated Indices
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <strong>Crossing Point Temperature (CPT)</strong>
+                                            <br><small class="text-muted">Lower values = Higher risk</small>
+                                        </td>
+                                        <td class="text-end">
+                                            {% if results.calculated_indices.cpt %}
+                                                <span class="badge bg-{% if results.calculated_indices.cpt < 140 %}danger{% elif results.calculated_indices.cpt < 150 %}warning{% elif results.calculated_indices.cpt < 160 %}info{% else %}success{% endif %} fs-6">
+                                                    {{ "%.1f"|format(results.calculated_indices.cpt) }}°C
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Liability Index (LI)</strong>
+                                            <br><small class="text-muted">Higher values = Higher risk</small>
+                                        </td>
+                                        <td class="text-end">
+                                            {% if results.calculated_indices.liability_index %}
+                                                <span class="badge bg-{% if results.calculated_indices.liability_index > 2.0 %}danger{% elif results.calculated_indices.liability_index > 1.0 %}warning{% else %}success{% endif %} fs-6">
+                                                    {{ results.calculated_indices.liability_index }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>WITS Index</strong>
+                                            <br><small class="text-muted">Higher values = Higher risk</small>
+                                        </td>
+                                        <td class="text-end">
+                                            {% if results.calculated_indices.wits_index %}
+                                                <span class="badge bg-{% if results.calculated_indices.wits_index > 5.0 %}danger{% elif results.calculated_indices.wits_index > 2.0 %}warning{% else %}success{% endif %} fs-6">
+                                                    {{ results.calculated_indices.wits_index }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Olpinski Index</strong>
+                                            <br><small class="text-muted">Moisture-based risk indicator</small>
+                                        </td>
+                                        <td class="text-end">
+                                            {% if results.calculated_indices.olpinski_index %}
+                                                <span class="badge bg-info fs-6">
+                                                    {{ results.calculated_indices.olpinski_index }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Data Summary -->
+            <div class="col-lg-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-database me-2"></i>Input Data Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <h6 class="text-secondary">Coal Properties (%)</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Moisture:</strong> {{ "%.1f"|format(results.input_data.moisture) }}%</li>
+                                    <li><strong>Volatile Matter:</strong> {{ "%.1f"|format(results.input_data.volatile_matter) }}%</li>
+                                    <li><strong>Ash Content:</strong> {{ "%.1f"|format(results.input_data.ash) }}%</li>
+                                    <li><strong>Fixed Carbon:</strong> {{ "%.1f"|format(results.input_data.fixed_carbon) }}%</li>
+                                </ul>
+                            </div>
+                            <div class="col-12">
+                                <h6 class="text-secondary">Environmental Conditions</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Oxygen:</strong> {{ "%.1f"|format(results.input_data.oxygen) }}%</li>
+                                    <li><strong>Ambient Temp:</strong> {{ "%.1f"|format(results.input_data.ambient_temp) }}°C</li>
+                                    <li><strong>Ventilation:</strong> {{ "%.1f"|format(results.input_data.ventilation_rate) }} m/s</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Factors -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-list-ul me-2"></i>Identified Risk Factors
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if results.risk_assessment.risk_factors %}
+                    <div class="row">
+                        {% for factor in results.risk_assessment.risk_factors %}
+                        <div class="col-md-6 mb-2">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-arrow-right text-warning me-2"></i>
+                                <span>{{ factor }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No specific risk factors identified.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Safety Recommendations
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if results.recommendations %}
+                    <div class="row">
+                        {% for recommendation in results.recommendations %}
+                        <div class="col-12 mb-3">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <span class="badge bg-success rounded-pill">{{ loop.index }}</span>
+                                </div>
+                                <div>
+                                    <p class="mb-0">{{ recommendation }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No specific recommendations available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mb-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-plus me-2"></i>New Analysis
+            </a>
+            <button onclick="window.print()" class="btn btn-secondary btn-lg me-3">
+                <i class="fas fa-print me-2"></i>Print Report
+            </button>
+            <button onclick="downloadReport()" class="btn btn-info btn-lg">
+                <i class="fas fa-download me-2"></i>Download JSON
+            </button>
+        </div>
+
+        <!-- Risk Level Guide -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>Risk Level Guide
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <div class="alert alert-success mb-0">
+                            <strong>LOW (0-39)</strong><br>
+                            <small>Minimal risk, routine monitoring sufficient</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="alert alert-info mb-0">
+                            <strong>MODERATE (40-59)</strong><br>
+                            <small>Increased vigilance, enhanced monitoring</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="alert alert-warning mb-0">
+                            <strong>HIGH (60-79)</strong><br>
+                            <small>Significant risk, active intervention needed</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="alert alert-danger mb-0">
+                            <strong>CRITICAL (80-100)</strong><br>
+                            <small>Immediate action required, high probability</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function downloadReport() {
+        const results = {{ results | tojson }};
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(results, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "coal_analysis_report_" + new Date().toISOString().slice(0,10) + ".json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    // Print styles
+    const printStyles = `
+        @media print {
+            .btn, .alert-dismissible .btn-close {
+                display: none !important;
+            }
+            .card {
+                break-inside: avoid;
+                margin-bottom: 1rem !important;
+            }
+            body {
+                font-size: 12px !important;
+            }
+            .display-6 {
+                font-size: 1.5rem !important;
+            }
+        }
+    `;
+    
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = printStyles;
+    document.head.appendChild(styleSheet);
+</script>
+{% endblock %}

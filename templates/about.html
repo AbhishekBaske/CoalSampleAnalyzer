@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}About - Coal Spontaneous Combustion Analyzer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 offset-lg-1">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-5 text-primary">
+                <i class="fas fa-info-circle me-3"></i>
+                About Coal Spontaneous Combustion Analysis
+            </h1>
+            <p class="lead text-muted">
+                Understanding the science behind coal spontaneous combustion risk assessment
+            </p>
+        </div>
+
+        <!-- Introduction -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-fire me-2"></i>What is Coal Spontaneous Combustion?
+                </h4>
+            </div>
+            <div class="card-body">
+                <p>
+                    Coal spontaneous combustion is a process where coal undergoes oxidation at relatively low temperatures, 
+                    generating heat that can accumulate and eventually lead to ignition without an external heat source. 
+                    This phenomenon poses significant safety and economic risks in coal mining, transportation, and storage operations.
+                </p>
+                <p class="mb-0">
+                    The process typically begins when coal is exposed to oxygen at temperatures as low as 35-40°C. 
+                    If heat dissipation is inadequate, the temperature rises progressively, accelerating the oxidation 
+                    process until ignition occurs, usually between 150-300°C depending on coal properties.
+                </p>
+            </div>
+        </div>
+
+        <!-- Analysis Methods -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-thermometer-half me-2"></i>Crossing Point Temperature (CPT)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            The CPT represents the critical temperature at which the rate of heat generation 
+                            from coal oxidation exceeds the rate of heat dissipation to the environment.
+                        </p>
+                        <ul class="mb-0">
+                            <li><strong>CPT < 140°C:</strong> Very High Risk</li>
+                            <li><strong>CPT 140-150°C:</strong> High Risk</li>
+                            <li><strong>CPT 150-160°C:</strong> Moderate Risk</li>
+                            <li><strong>CPT > 160°C:</strong> Low Risk</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Liability Index (LI)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            The Liability Index, developed by Banerjee (2000), correlates coal's 
+                            spontaneous combustion tendency with its proximate analysis parameters.
+                        </p>
+                        <p><strong>Formula:</strong> LI = (Moisture × Volatile Matter) / Ash Content</p>
+                        <ul class="mb-0">
+                            <li><strong>LI > 2.0:</strong> High Risk</li>
+                            <li><strong>LI 1.0-2.0:</strong> Moderate Risk</li>
+                            <li><strong>LI < 1.0:</strong> Low Risk</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-university me-2"></i>WITS Index
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            Developed at the University of Witwatersrand, this index considers both 
+                            coal properties and environmental oxygen availability.
+                        </p>
+                        <p><strong>Formula:</strong> WITS = (Moisture + Volatile Matter) × Oxygen / (Ash + 1)</p>
+                        <ul class="mb-0">
+                            <li><strong>WITS > 5.0:</strong> High Risk</li>
+                            <li><strong>WITS 2.0-5.0:</strong> Moderate Risk</li>
+                            <li><strong>WITS < 2.0:</strong> Low Risk</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calculator me-2"></i>Olpinski Index
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            This index focuses on the moisture content's role in spontaneous combustion, 
+                            considering its relationship with ash and volatile matter.
+                        </p>
+                        <p><strong>Formula:</strong> OI = Moisture / (Ash + Volatile Matter)</p>
+                        <p class="mb-0">
+                            Higher values indicate increased moisture-related combustion risk, 
+                            particularly important for freshly mined coal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Factors -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-circle me-2"></i>Key Risk Factors
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-danger">Coal Properties</h5>
+                        <ul>
+                            <li><strong>High Volatile Matter:</strong> Increases reactivity and heat generation</li>
+                            <li><strong>Low Ash Content:</strong> Reduces heat absorption capacity</li>
+                            <li><strong>Optimal Moisture:</strong> 8-12% range is most problematic</li>
+                            <li><strong>Fine Particle Size:</strong> Increases surface area for oxidation</li>
+                            <li><strong>Fresh Coal:</strong> Recently exposed surfaces are more reactive</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-warning">Environmental Conditions</h5>
+                        <ul>
+                            <li><strong>High Ambient Temperature:</strong> Accelerates oxidation reactions</li>
+                            <li><strong>Poor Ventilation:</strong> Allows heat accumulation</li>
+                            <li><strong>Oxygen Availability:</strong> Essential for oxidation process</li>
+                            <li><strong>Pile Size:</strong> Large piles retain heat more effectively</li>
+                            <li><strong>Compaction:</strong> Reduces heat dissipation pathways</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prevention Strategies -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>Prevention and Control Strategies
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5 class="text-success">Monitoring</h5>
+                        <ul>
+                            <li>Temperature monitoring systems</li>
+                            <li>Gas detection (CO, CO₂)</li>
+                            <li>Thermal imaging surveys</li>
+                            <li>Regular visual inspections</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="text-info">Storage Practices</h5>
+                        <ul>
+                            <li>Limit pile heights (3-4 meters)</li>
+                            <li>Proper ventilation design</li>
+                            <li>Quick turnover of stockpiles</li>
+                            <li>Moisture control measures</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="text-warning">Treatment Methods</h5>
+                        <ul>
+                            <li>Water spraying systems</li>
+                            <li>Foam injection</li>
+                            <li>Inert gas blanketing</li>
+                            <li>Chemical additives</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical References -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-book me-2"></i>Scientific References
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Key Research Publications:</h6>
+                        <ol>
+                            <li>Banerjee, S.C. (2000). "Prevention and Combating Mine Fires." Oxford & IBH Publishing.</li>
+                            <li>Sharma, A. et al. (2020). "Coal Spontaneous Combustion: Laboratory and Field Studies." Mining Engineering.</li>
+                            <li>Singh, R.N. (2019). "Advances in Coal Mine Safety: Spontaneous Combustion Assessment." Coal International.</li>
+                            <li>University of Witwatersrand (2018). "WITS Index for Coal Spontaneous Combustion Prediction."</li>
+                            <li>Olpinski, B. (2015). "Moisture Effects on Coal Spontaneous Combustion Liability." Fuel Journal.</li>
+                        </ol>
+                        
+                        <h6 class="mt-4">International Standards:</h6>
+                        <ul>
+                            <li>ASTM D5515 - Standard Test Method for Determination of the Swelling Properties of Bituminous Coal</li>
+                            <li>ISO 562 - Hard coal and coke — Determination of volatile matter</li>
+                            <li>ASTM D3173 - Standard Test Method for Moisture in the Analysis Sample of Coal and Coke</li>
+                            <li>ASTM D3174 - Standard Test Method for Ash in the Analysis Sample of Coal and Coke</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="alert alert-warning">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Important Disclaimer</h5>
+            <p class="mb-0">
+                This tool provides estimates based on established scientific methods and should be used as part of a 
+                comprehensive safety assessment. Actual field conditions may vary, and professional mining engineers 
+                should validate results with on-site measurements and safety protocols. The developers assume no 
+                liability for decisions made based on these calculations.
+            </p>
+        </div>
+
+        <!-- Back to Analysis -->
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>Back to Analysis
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

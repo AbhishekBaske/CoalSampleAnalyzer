@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Thermal Analysis - Coal Spontaneous Combustion Analyzer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-6 text-primary">
+                <i class="fas fa-chart-bar me-3"></i>
+                Batch Thermal Analysis Results
+            </h1>
+            <p class="lead text-muted">
+                Comparative analysis of {{ results|length }} coal samples from bituminous dataset
+            </p>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-center border-danger">
+                    <div class="card-body">
+                        <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                        <h4 class="text-danger">{{ (results | selectattr('combined_risk_score', '>=', 80) | list | length) }}</h4>
+                        <p class="card-text">Critical Risk</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center border-warning">
+                    <div class="card-body">
+                        <i class="fas fa-exclamation-circle fa-2x text-warning mb-2"></i>
+                        <h4 class="text-warning">{{ (results | selectattr('combined_risk_score', '>=', 60) | selectattr('combined_risk_score', '<', 80) | list | length) }}</h4>
+                        <p class="card-text">High Risk</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center border-info">
+                    <div class="card-body">
+                        <i class="fas fa-info-circle fa-2x text-info mb-2"></i>
+                        <h4 class="text-info">{{ (results | selectattr('combined_risk_score', '>=', 40) | selectattr('combined_risk_score', '<', 60) | list | length) }}</h4>
+                        <p class="card-text">Moderate Risk</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-center border-success">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <h4 class="text-success">{{ (results | selectattr('combined_risk_score', '<', 40) | list | length) }}</h4>
+                        <p class="card-text">Low Risk</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temperature Statistics -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-thermometer-half me-2"></i>Temperature Analysis Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <h6 class="text-secondary">Highest Temperature</h6>
+                        <h4 class="text-danger">{{ "%.1f"|format(results | map(attribute='max_temp') | max) }}°C</h4>
+                        <small class="text-muted">Sample: {{ (results | sort(attribute='max_temp', reverse=true) | first).image_name }}</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h6 class="text-secondary">Average Max Temp</h6>
+                        <h4 class="text-warning">{{ "%.1f"|format((results | map(attribute='max_temp') | sum) / (results | length)) }}°C</h4>
+                        <small class="text-muted">Across all samples</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h6 class="text-secondary">Samples > 80°C</h6>
+                        <h4 class="text-danger">{{ (results | selectattr('max_temp', '>', 80) | list | length) }}</h4>
+                        <small class="text-muted">Critical temperature zone</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h6 class="text-secondary">Average Critical Area</h6>
+                        <h4 class="text-info">{{ "%.1f"|format((results | map(attribute='critical_area_percentage') | sum) / (results | length)) }}%</h4>
+                        <small class="text-muted">Mean critical zone size</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Results Table -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>Detailed Analysis Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm" id="batchResultsTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Sample</th>
+                                <th>Scenario</th>
+                                <th>Risk Score</th>
+                                <th>Max Temp (°C)</th>
+                                <th>Avg Temp (°C)</th>
+                                <th>Critical Area (%)</th>
+                                <th>CPT (°C)</th>
+                                <th>Moisture (%)</th>
+                                <th>Volatile (%)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr class="{% if result.combined_risk_score >= 80 %}table-danger{% elif result.combined_risk_score >= 60 %}table-warning{% elif result.combined_risk_score >= 40 %}table-info{% endif %}">
+                                <td>
+                                    <strong>{{ result.image_name.split('.')[0] }}</strong>
+                                    <br><small class="text-muted">{{ result.image_name }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ result.scenario.replace('_', ' ').title() }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 60px; height: 20px;">
+                                            <div class="progress-bar bg-{% if result.combined_risk_score >= 80 %}danger{% elif result.combined_risk_score >= 60 %}warning{% elif result.combined_risk_score >= 40 %}info{% else %}success{% endif %}" 
+                                                 style="width: {{ result.combined_risk_score }}%"></div>
+                                        </div>
+                                        <strong>{{ "%.0f"|format(result.combined_risk_score) }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if result.max_temp > 120 %}danger{% elif result.max_temp > 80 %}warning{% elif result.max_temp > 50 %}info{% else %}success{% endif %}">
+                                        {{ "%.1f"|format(result.max_temp) }}
+                                    </span>
+                                </td>
+                                <td>{{ "%.1f"|format(result.avg_temp) }}</td>
+                                <td>
+                                    <span class="badge bg-{% if result.critical_area_percentage > 20 %}danger{% elif result.critical_area_percentage > 10 %}warning{% else %}success{% endif %}">
+                                        {{ "%.1f"|format(result.critical_area_percentage) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if result.cpt %}
+                                        <span class="badge bg-{% if result.cpt < 140 %}danger{% elif result.cpt < 150 %}warning{% elif result.cpt < 160 %}info{% else %}success{% endif %}">
+                                            {{ "%.1f"|format(result.cpt) }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ "%.1f"|format(result.coal_properties.moisture) }}</td>
+                                <td>{{ "%.1f"|format(result.coal_properties.volatile_matter) }}</td>
+                                <td>
+                                    <a href="{{ url_for('analyze_thermal_image', image_name=result.image_name) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Detailed Analysis">
+                                        <i class="fas fa-search"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Conditions Summary -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-cloud-sun me-2"></i>Environmental Conditions Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 class="text-secondary">Temperature Scenarios</h6>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Normal (20-30°C)</span>
+                                <span>{{ (results | selectattr('env_params.ambient_temperature', '<=', 30) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-success" 
+                                     style="width: {{ ((results | selectattr('env_params.ambient_temperature', '<=', 30) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Hot (30-40°C)</span>
+                                <span>{{ (results | selectattr('env_params.ambient_temperature', '>', 30) | selectattr('env_params.ambient_temperature', '<=', 40) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-warning" 
+                                     style="width: {{ ((results | selectattr('env_params.ambient_temperature', '>', 30) | selectattr('env_params.ambient_temperature', '<=', 40) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Extreme (>40°C)</span>
+                                <span>{{ (results | selectattr('env_params.ambient_temperature', '>', 40) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-danger" 
+                                     style="width: {{ ((results | selectattr('env_params.ambient_temperature', '>', 40) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-secondary">Humidity Conditions</h6>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Low (<40%)</span>
+                                <span>{{ (results | selectattr('env_params.relative_humidity', '<', 40) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-warning" 
+                                     style="width: {{ ((results | selectattr('env_params.relative_humidity', '<', 40) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Normal (40-70%)</span>
+                                <span>{{ (results | selectattr('env_params.relative_humidity', '>=', 40) | selectattr('env_params.relative_humidity', '<=', 70) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-success" 
+                                     style="width: {{ ((results | selectattr('env_params.relative_humidity', '>=', 40) | selectattr('env_params.relative_humidity', '<=', 70) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>High (>70%)</span>
+                                <span>{{ (results | selectattr('env_params.relative_humidity', '>', 70) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-info" 
+                                     style="width: {{ ((results | selectattr('env_params.relative_humidity', '>', 70) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-secondary">Ventilation Quality</h6>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Poor (<0.5 m/s)</span>
+                                <span>{{ (results | selectattr('env_params.wind_speed', '<', 0.5) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-danger" 
+                                     style="width: {{ ((results | selectattr('env_params.wind_speed', '<', 0.5) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Adequate (0.5-1.5 m/s)</span>
+                                <span>{{ (results | selectattr('env_params.wind_speed', '>=', 0.5) | selectattr('env_params.wind_speed', '<=', 1.5) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-warning" 
+                                     style="width: {{ ((results | selectattr('env_params.wind_speed', '>=', 0.5) | selectattr('env_params.wind_speed', '<=', 1.5) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Good (>1.5 m/s)</span>
+                                <span>{{ (results | selectattr('env_params.wind_speed', '>', 1.5) | list | length) }}</span>
+                            </div>
+                            <div class="progress mb-1" style="height: 10px;">
+                                <div class="progress-bar bg-success" 
+                                     style="width: {{ ((results | selectattr('env_params.wind_speed', '>', 1.5) | list | length) / (results | length) * 100) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('thermal_analysis') }}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-arrow-left me-2"></i>Back to Thermal Analysis
+            </a>
+            <button onclick="window.print()" class="btn btn-secondary btn-lg me-3">
+                <i class="fas fa-print me-2"></i>Print Report
+            </button>
+            <button onclick="downloadBatchReport()" class="btn btn-info btn-lg me-3">
+                <i class="fas fa-download me-2"></i>Download CSV
+            </button>
+            <button onclick="exportToJSON()" class="btn btn-success btn-lg">
+                <i class="fas fa-file-export me-2"></i>Export JSON
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+<script>
+    $(document).ready(function() {
+        $('#batchResultsTable').DataTable({
+            "pageLength": 25,
+            "order": [[ 2, "desc" ]], // Sort by risk score descending
+            "columnDefs": [
+                { "orderable": false, "targets": 9 } // Disable sorting on Actions column
+            ]
+        });
+    });
+
+    function downloadBatchReport() {
+        const results = {{ results | tojson }};
+        
+        // Create CSV content
+        let csvContent = "Sample,Scenario,Risk Score,Max Temp (°C),Avg Temp (°C),Critical Area (%),CPT (°C),Moisture (%),Volatile Matter (%),Ash (%),Fixed Carbon (%),Ambient Temp (°C),Humidity (%),Wind Speed (m/s)\n";
+        
+        results.forEach(result => {
+            csvContent += `"${result.image_name}","${result.scenario}",${result.combined_risk_score.toFixed(1)},${result.max_temp.toFixed(1)},${result.avg_temp.toFixed(1)},${result.critical_area_percentage.toFixed(1)},${result.cpt ? result.cpt.toFixed(1) : 'N/A'},${result.coal_properties.moisture.toFixed(2)},${result.coal_properties.volatile_matter.toFixed(2)},${result.coal_properties.ash.toFixed(2)},${result.coal_properties.fixed_carbon.toFixed(2)},${result.env_params.ambient_temperature.toFixed(1)},${result.env_params.relative_humidity.toFixed(1)},${result.env_params.wind_speed.toFixed(2)}\n`;
+        });
+        
+        // Download CSV
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "batch_thermal_analysis_" + new Date().toISOString().slice(0,10) + ".csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function exportToJSON() {
+        const results = {{ results | tojson }};
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(results, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "batch_thermal_analysis_" + new Date().toISOString().slice(0,10) + ".json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    // Print styles
+    const printStyles = `
+        @media print {
+            .btn, .alert-dismissible .btn-close, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate {
+                display: none !important;
+            }
+            .card {
+                break-inside: avoid;
+                margin-bottom: 1rem !important;
+            }
+            body {
+                font-size: 10px !important;
+            }
+            .display-6 {
+                font-size: 1.3rem !important;
+            }
+            table {
+                font-size: 8px !important;
+            }
+        }
+    `;
+    
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = printStyles;
+    document.head.appendChild(styleSheet);
+</script>
+{% endblock %}

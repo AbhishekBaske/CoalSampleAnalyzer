@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Coal Analysis - Coal Spontaneous Combustion Analyzer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-5 text-primary">
+                <i class="fas fa-microscope me-3"></i>
+                Coal Spontaneous Combustion Analysis
+            </h1>
+            <p class="lead text-muted">
+                Enter coal properties and environmental conditions to assess spontaneous combustion risk
+            </p>
+        </div>
+
+        <!-- Analysis Form -->
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    Coal Analysis Parameters
+                </h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('analyze') }}" method="POST" id="analysisForm">
+                    
+                    <!-- Coal Identification -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-secondary mb-3">
+                                <i class="fas fa-tag me-2"></i>Coal Identification
+                            </h5>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="coal_type" class="form-label">Coal Type</label>
+                            <select class="form-select" id="coal_type" name="coal_type">
+                                <option value="Bituminous">Bituminous Coal</option>
+                                <option value="Sub-bituminous">Sub-bituminous Coal</option>
+                                <option value="Lignite">Lignite</option>
+                                <option value="Anthracite">Anthracite</option>
+                                <option value="Unknown">Unknown/Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="location" class="form-label">Location/Source</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   placeholder="e.g., Mine XYZ, Stockyard A" value="">
+                        </div>
+                    </div>
+
+                    <!-- Coal Properties -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-secondary mb-3">
+                                <i class="fas fa-flask me-2"></i>Coal Properties (%)
+                            </h5>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="moisture" class="form-label">
+                                Moisture Content (%)
+                                <i class="fas fa-info-circle text-info ms-1" data-bs-toggle="tooltip" 
+                                   title="Total moisture content in coal sample"></i>
+                            </label>
+                            <input type="number" class="form-control" id="moisture" name="moisture" 
+                                   step="0.1" min="0" max="50" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="volatile_matter" class="form-label">
+                                Volatile Matter (%)
+                                <i class="fas fa-info-circle text-info ms-1" data-bs-toggle="tooltip" 
+                                   title="Combustible gases and vapors driven off by heating"></i>
+                            </label>
+                            <input type="number" class="form-control" id="volatile_matter" name="volatile_matter" 
+                                   step="0.1" min="0" max="70" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="ash" class="form-label">
+                                Ash Content (%)
+                                <i class="fas fa-info-circle text-info ms-1" data-bs-toggle="tooltip" 
+                                   title="Inorganic residue after complete combustion"></i>
+                            </label>
+                            <input type="number" class="form-control" id="ash" name="ash" 
+                                   step="0.1" min="0" max="50" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="fixed_carbon" class="form-label">
+                                Fixed Carbon (%)
+                                <i class="fas fa-info-circle text-info ms-1" data-bs-toggle="tooltip" 
+                                   title="Solid combustible residue after volatile matter is removed"></i>
+                            </label>
+                            <input type="number" class="form-control" id="fixed_carbon" name="fixed_carbon" 
+                                   step="0.1" min="0" max="90" required>
+                        </div>
+                    </div>
+
+                    <!-- Environmental Conditions -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-secondary mb-3">
+                                <i class="fas fa-cloud-sun me-2"></i>Environmental Conditions
+                            </h5>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="oxygen" class="form-label">
+                                Oxygen Content (%)
+                                <i class="fas fa-info-circle text-info ms-1" data-bs-toggle="tooltip" 
+                                   title="Oxygen concentration in surrounding atmosphere"></i>
+                            </label>
+                            <input type="number" class="form-control" id="oxygen" name="oxygen" 
+                                   step="0.1" min="10" max="25" value="20.9">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="ambient_temp" class="form-label">
+                                Ambient Temperature (°C)
+                                <i class="fas fa-info-circle text-info ms-1" data-bs-toggle="tooltip" 
+                                   title="Current environmental temperature"></i>
+                            </label>
+                            <input type="number" class="form-control" id="ambient_temp" name="ambient_temp" 
+                                   step="0.1" min="-10" max="50" value="25">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="ventilation_rate" class="form-label">
+                                Ventilation Rate (m/s)
+                                <i class="fas fa-info-circle text-info ms-1" data-bs-toggle="tooltip" 
+                                   title="Air flow velocity in storage area"></i>
+                            </label>
+                            <input type="number" class="form-control" id="ventilation_rate" name="ventilation_rate" 
+                                   step="0.1" min="0" max="10" value="1.0">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-calculator me-2"></i>
+                                Analyze Coal Sample
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-lg" onclick="clearForm()">
+                                <i class="fas fa-eraser me-2"></i>
+                                Clear Form
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Information Cards -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-thermometer-half me-2"></i>Crossing Point Temperature</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text small">
+                            The temperature at which heat generation exceeds heat dissipation. 
+                            Lower values indicate higher spontaneous combustion risk.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Liability Index</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text small">
+                            Measures the coal's tendency for spontaneous combustion based on 
+                            moisture, volatile matter, and ash content ratios.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>WITS Index</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text small">
+                            Developed at University of Witwatersrand for predicting spontaneous 
+                            combustion liability in coal stockpiles.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Form validation
+    document.getElementById('analysisForm').addEventListener('submit', function(e) {
+        const moisture = parseFloat(document.getElementById('moisture').value) || 0;
+        const volatile = parseFloat(document.getElementById('volatile_matter').value) || 0;
+        const ash = parseFloat(document.getElementById('ash').value) || 0;
+        const fixedCarbon = parseFloat(document.getElementById('fixed_carbon').value) || 0;
+        
+        const total = moisture + volatile + ash + fixedCarbon;
+        
+        if (total > 105 || total < 95) {
+            e.preventDefault();
+            alert('Warning: Total of all components should be approximately 100%. Current total: ' + total.toFixed(1) + '%\n\nPlease check your values.');
+        }
+    });
+
+    // Clear form function
+    function clearForm() {
+        document.getElementById('analysisForm').reset();
+        document.getElementById('oxygen').value = '20.9';
+        document.getElementById('ambient_temp').value = '25';
+        document.getElementById('ventilation_rate').value = '1.0';
+    }
+
+    // Auto-calculate fixed carbon if other values are entered
+    function updateFixedCarbon() {
+        const moisture = parseFloat(document.getElementById('moisture').value) || 0;
+        const volatile = parseFloat(document.getElementById('volatile_matter').value) || 0;
+        const ash = parseFloat(document.getElementById('ash').value) || 0;
+        
+        if (moisture > 0 && volatile > 0 && ash > 0) {
+            const fixedCarbon = Math.max(0, 100 - moisture - volatile - ash);
+            document.getElementById('fixed_carbon').value = fixedCarbon.toFixed(1);
+        }
+    }
+
+    // Add event listeners for auto-calculation
+    ['moisture', 'volatile_matter', 'ash'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateFixedCarbon);
+    });
+</script>
+{% endblock %}
